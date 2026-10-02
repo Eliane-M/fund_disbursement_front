@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Urbanist", system-ui, "Segoe UI", Roboto, sans-serif;
+
+  /* Brand palette, sampled from the Platform Console mockups */
+  --color-navy-950: #0f2a40;
+  --color-navy-900: #132f45;
+  --color-navy-800: #18354e;
+  --color-navy-700: #224260;
+  --color-navy-600: #36597b;
+  --color-navy-500: #577a9b;
+  --color-navy-400: #80a1bd;
+
+  --color-cream-100: #f7f4ec;
+  --color-cream-200: #f1ede2;
+  --color-cream-300: #e8e2d2;
+
+  --color-amber-600: #c7882d;
+  --color-amber-500: #e7a943;
+  --color-amber-400: #f1ba5d;
+  --color-amber-300: #fbd28c;
+  --color-amber-100: #faf1de;
+
+  --color-teal-600: #1f6f7a;
+
+  --color-success-bg: #dcefdd;
+  --color-success-text: #2b6a3a;
+  --color-trial-bg: #f5e3c4;
+  --color-trial-text: #8a5a20;
+  --color-danger-bg: #fbe2e1;
+  --color-danger-text: #b3362c;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  background: var(--color-cream-100);
+  color: var(--color-navy-900);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100svh;
+}
