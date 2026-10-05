@@ -13,7 +13,9 @@ import { Modal } from '@/components/ui/Modal'
 import { Pagination } from '@/components/ui/Pagination'
 import { SearchFilterBar } from '@/components/ui/SearchFilterBar'
 import { TextField } from '@/components/ui/TextField'
+import { useAuth } from '@/hooks/useAuth'
 import { extractErrorMessage } from '@/lib/api'
+import { PHONE_HINT, phoneValidationError } from '@/lib/phone'
 import { platformApi } from '@/lib/platform-api'
 import type { PlatformUser } from '@/types/platform'
 
@@ -30,11 +32,16 @@ function EditUserModal({ user, onClose }: { user: PlatformUser; onClose: () => v
   const [firstName, setFirstName] = useState(user.first_name)
   const [lastName, setLastName] = useState(user.last_name)
   const [phoneNumber, setPhoneNumber] = useState(user.phone_number)
+  const [phoneError, setPhoneError] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const mutation = useMutation({
     mutationFn: () =>
-      platformApi.updateUser(user.id, { first_name: firstName, last_name: lastName, phone_number: phoneNumber }),
+      platformApi.updateUser(user.id, {
+        first_name: firstName,
+        last_name: lastName,
+        phone_number: phoneNumber.trim(),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['platform-users'] })
       onClose()
@@ -44,6 +51,9 @@ function EditUserModal({ user, onClose }: { user: PlatformUser; onClose: () => v
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    const nextPhoneError = phoneValidationError(phoneNumber)
+    setPhoneError(nextPhoneError)
+    if (nextPhoneError) return
     setError(null)
     mutation.mutate()
   }
@@ -57,7 +67,17 @@ function EditUserModal({ user, onClose }: { user: PlatformUser; onClose: () => v
           <TextField label="First name" required value={firstName} onChange={(e) => setFirstName(e.target.value)} />
           <TextField label="Last name" required value={lastName} onChange={(e) => setLastName(e.target.value)} />
         </div>
-        <TextField label="Contact" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+        <TextField
+          label="Contact"
+          type="tel"
+          value={phoneNumber}
+          onChange={(e) => {
+            setPhoneNumber(e.target.value)
+            setPhoneError(null)
+          }}
+          hint={PHONE_HINT}
+          error={phoneError ?? undefined}
+        />
         <Button type="submit" isLoading={mutation.isPending}>
           Save changes
         </Button>
@@ -66,7 +86,74 @@ function EditUserModal({ user, onClose }: { user: PlatformUser; onClose: () => v
   )
 }
 
+function AddAdminModal({ onClose, onCreated }: { onClose: () => void; onCreated: (email: string) => void }) {
+  const queryClient = useQueryClient()
+  const [email, setEmail] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [phoneError, setPhoneError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      platformApi.createPlatformAdmin({
+        email: email.trim(),
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        phone_number: phoneNumber.trim(),
+      }),
+    onSuccess: (created) => {
+      queryClient.invalidateQueries({ queryKey: ['platform-users'] })
+      onCreated(created.email)
+      onClose()
+    },
+    onError: (err) => setError(extractErrorMessage(err)),
+  })
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    const nextPhoneError = phoneValidationError(phoneNumber)
+    setPhoneError(nextPhoneError)
+    if (nextPhoneError) return
+    setError(null)
+    mutation.mutate()
+  }
+
+  return (
+    <Modal title="Add system admin" onClose={onClose}>
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+        {error && <Alert tone="error">{error}</Alert>}
+        <TextField label="Email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        <div className="grid grid-cols-2 gap-3">
+          <TextField label="First name" required value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+          <TextField label="Last name" required value={lastName} onChange={(e) => setLastName(e.target.value)} />
+        </div>
+        <TextField
+          label="Contact"
+          type="tel"
+          value={phoneNumber}
+          onChange={(e) => {
+            setPhoneNumber(e.target.value)
+            setPhoneError(null)
+          }}
+          hint={PHONE_HINT}
+          error={phoneError ?? undefined}
+        />
+        <p className="text-xs text-navy-500">
+          They'll get a temporary password by email and set their own on first sign-in.
+        </p>
+        <Button type="submit" isLoading={mutation.isPending}>
+          Create system admin
+        </Button>
+      </form>
+    </Modal>
+  )
+}
+
 export function UsersPage() {
+  const { user: currentUser } = useAuth()
+  const [showAdd, setShowAdd] = useState(false)
   const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const [submittedSearch, setSubmittedSearch] = useState('')
@@ -78,7 +165,7 @@ export function UsersPage() {
 
   const { data } = useQuery({
     queryKey: ['platform-users', submittedSearch, page],
-    queryFn: () => platformApi.users({ search: submittedSearch, page, page_size: PAGE_SIZE }),
+    queryFn: () => platformApi.users({ search: submittedSearch, is_platform_admin: true, page, page_size: PAGE_SIZE }),
   })
 
   function invalidate() {
@@ -113,8 +200,13 @@ export function UsersPage() {
   }
 
   return (
-    <PlatformLayout title="Users" subtitle="Everyone with an account on the platform">
-      <Breadcrumb items={[{ label: 'Platform Console' }, { label: 'Users' }]} />
+    <PlatformLayout title="System admins" subtitle="Administrators of the whole platform. Organization users are managed from each organization's page."
+      actions={
+        <Button fullWidth={false} className="px-4 py-2" onClick={() => setShowAdd(true)}>
+          + Add system admin
+        </Button>
+      }>
+      <Breadcrumb items={[{ label: 'Platform Console' }, { label: 'System admins' }]} />
       <section className="rounded-2xl border border-cream-300 bg-white p-6">
         {notice && (
           <div className="mb-4">
@@ -127,7 +219,7 @@ export function UsersPage() {
           </div>
         )}
 
-        <SearchFilterBar search={search} onSearchChange={setSearch} onSubmit={handleSearch} placeholder="Search users…" />
+        <SearchFilterBar search={search} onSearchChange={setSearch} onSubmit={handleSearch} placeholder="Search system admins…" />
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
@@ -158,6 +250,9 @@ export function UsersPage() {
                           icon: <PencilIcon />,
                           onClick: () => setEditingUser(u),
                         },
+                        ...(u.id === currentUser?.id
+                          ? []
+                          : [
                         u.status === 'disabled'
                           ? {
                               label: 'Activate',
@@ -169,6 +264,7 @@ export function UsersPage() {
                               icon: <PauseIcon />,
                               onClick: () => toggleStatusMutation.mutate({ id: u.id, status: 'disabled' }),
                             },
+                          ]),
                         {
                           label: 'Permissions',
                           icon: <SlidersIcon />,
@@ -180,12 +276,16 @@ export function UsersPage() {
                           icon: <KeyIcon />,
                           onClick: () => resetPasswordMutation.mutate(u.id),
                         },
-                        {
-                          label: 'Delete',
-                          icon: <TrashIcon />,
-                          tone: 'danger',
-                          onClick: () => setDeletingUser(u),
-                        },
+                        ...(u.id === currentUser?.id
+                          ? []
+                          : [
+                              {
+                                label: 'Delete',
+                                icon: <TrashIcon />,
+                                tone: 'danger' as const,
+                                onClick: () => setDeletingUser(u),
+                              },
+                            ]),
                       ]}
                     />
                   </td>
@@ -194,7 +294,7 @@ export function UsersPage() {
               {data?.results.length === 0 && (
                 <tr>
                   <td colSpan={5} className="py-6 text-center text-sm text-navy-500">
-                    No users found.
+                    No system admins found.
                   </td>
                 </tr>
               )}
@@ -208,6 +308,8 @@ export function UsersPage() {
           </div>
         )}
       </section>
+
+      {showAdd && <AddAdminModal onClose={() => setShowAdd(false)} onCreated={(email) => setNotice(`System admin created. A temporary password was emailed to ${email}.`)} />}
 
       {editingUser && <EditUserModal user={editingUser} onClose={() => setEditingUser(null)} />}
 

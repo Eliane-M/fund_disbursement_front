@@ -12,6 +12,7 @@ import { Pagination } from '@/components/ui/Pagination'
 import { SearchFilterBar } from '@/components/ui/SearchFilterBar'
 import { TextField } from '@/components/ui/TextField'
 import { extractErrorMessage } from '@/lib/api'
+import { PHONE_HINT, phoneValidationError } from '@/lib/phone'
 import { platformApi } from '@/lib/platform-api'
 
 const PAGE_SIZE = 10
@@ -33,6 +34,8 @@ function NewOrganizationModal({ onClose }: { onClose: () => void }) {
   const [adminLastName, setAdminLastName] = useState('')
   const [adminEmail, setAdminEmail] = useState('')
   const [adminPhone, setAdminPhone] = useState('')
+  const [phoneError, setPhoneError] = useState<string | null>(null)
+  const [adminPhoneError, setAdminPhoneError] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const mutation = useMutation({
@@ -41,10 +44,10 @@ function NewOrganizationModal({ onClose }: { onClose: () => void }) {
         name,
         org_type: orgType,
         contact_email: contactEmail,
-        phone,
+        phone: phone.trim(),
         location,
         admin: adminEmail
-          ? { first_name: adminFirstName, last_name: adminLastName, email: adminEmail, phone: adminPhone }
+          ? { first_name: adminFirstName, last_name: adminLastName, email: adminEmail, phone: adminPhone.trim() }
           : undefined,
       }),
     onSuccess: () => {
@@ -64,6 +67,11 @@ function NewOrganizationModal({ onClose }: { onClose: () => void }) {
       setError("The organization administrator's first and last name are required.")
       return
     }
+    const nextPhoneError = phoneValidationError(phone)
+    const nextAdminPhoneError = phoneValidationError(adminPhone)
+    setPhoneError(nextPhoneError)
+    setAdminPhoneError(nextAdminPhoneError)
+    if (nextPhoneError || nextAdminPhoneError) return
     setError(null)
     mutation.mutate()
   }
@@ -78,7 +86,17 @@ function NewOrganizationModal({ onClose }: { onClose: () => void }) {
         </div>
         <div className="grid grid-cols-2 gap-3">
           <TextField label="Organization type" value={orgType} onChange={(e) => setOrgType(e.target.value)} placeholder="e.g. NGO, Government" />
-          <TextField label="Organization phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <TextField
+            label="Organization phone"
+            type="tel"
+            value={phone}
+            onChange={(e) => {
+              setPhone(e.target.value)
+              setPhoneError(null)
+            }}
+            hint={PHONE_HINT}
+            error={phoneError ?? undefined}
+          />
         </div>
         <TextField label="Location" value={location} onChange={(e) => setLocation(e.target.value)} />
 
@@ -89,7 +107,17 @@ function NewOrganizationModal({ onClose }: { onClose: () => void }) {
             <TextField label="First name" value={adminFirstName} onChange={(e) => setAdminFirstName(e.target.value)} />
             <TextField label="Last name" value={adminLastName} onChange={(e) => setAdminLastName(e.target.value)} />
             <TextField label="Email" type="email" value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} />
-            <TextField label="Phone" value={adminPhone} onChange={(e) => setAdminPhone(e.target.value)} />
+            <TextField
+              label="Phone"
+              type="tel"
+              value={adminPhone}
+              onChange={(e) => {
+                setAdminPhone(e.target.value)
+                setAdminPhoneError(null)
+              }}
+              hint={PHONE_HINT}
+              error={adminPhoneError ?? undefined}
+            />
           </div>
         </div>
 

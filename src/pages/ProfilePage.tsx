@@ -8,23 +8,32 @@ import { TextField } from '@/components/ui/TextField'
 import { useAuth } from '@/hooks/useAuth'
 import { extractErrorMessage } from '@/lib/api'
 import { authApi } from '@/lib/auth-api'
+import { PHONE_HINT, phoneValidationError } from '@/lib/phone'
 
 function ProfileDetailsForm() {
   const { user, refreshUser } = useAuth()
   const [firstName, setFirstName] = useState(user?.first_name ?? '')
   const [lastName, setLastName] = useState(user?.last_name ?? '')
   const [phoneNumber, setPhoneNumber] = useState(user?.phone_number ?? '')
+  const [phoneError, setPhoneError] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    const nextPhoneError = phoneValidationError(phoneNumber)
+    setPhoneError(nextPhoneError)
+    if (nextPhoneError) return
     setError(null)
     setNotice(null)
     setIsSubmitting(true)
     try {
-      await authApi.updateProfile({ first_name: firstName, last_name: lastName, phone_number: phoneNumber })
+      await authApi.updateProfile({
+        first_name: firstName,
+        last_name: lastName,
+        phone_number: phoneNumber.trim(),
+      })
       await refreshUser()
       setNotice('Profile updated.')
     } catch (err) {
@@ -43,7 +52,17 @@ function ProfileDetailsForm() {
         <TextField label="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
       </div>
       <TextField label="Email" value={user?.email ?? ''} disabled />
-      <TextField label="Phone number" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+      <TextField
+        label="Phone number"
+        type="tel"
+        value={phoneNumber}
+        onChange={(e) => {
+          setPhoneNumber(e.target.value)
+          setPhoneError(null)
+        }}
+        hint={PHONE_HINT}
+        error={phoneError ?? undefined}
+      />
       <Button type="submit" fullWidth={false} className="self-start px-5" isLoading={isSubmitting}>
         Save changes
       </Button>

@@ -12,6 +12,7 @@ import { Modal } from '@/components/ui/Modal'
 import { Select } from '@/components/ui/Select'
 import { TextField } from '@/components/ui/TextField'
 import { extractErrorMessage } from '@/lib/api'
+import { PHONE_HINT, phoneValidationError } from '@/lib/phone'
 import { platformApi } from '@/lib/platform-api'
 import type { PlatformOrganization } from '@/types/platform'
 
@@ -30,6 +31,7 @@ function EditOrganizationModal({
   const [sectorFocus, setSectorFocus] = useState(organization.sector_focus)
   const [contactEmail, setContactEmail] = useState(organization.contact_email)
   const [phone, setPhone] = useState(organization.phone)
+  const [phoneError, setPhoneError] = useState<string | null>(null)
   const [location, setLocation] = useState(organization.location)
   const [status, setStatus] = useState(organization.status)
   const [error, setError] = useState<string | null>(null)
@@ -41,7 +43,7 @@ function EditOrganizationModal({
         org_type: orgType,
         sector_focus: sectorFocus,
         contact_email: contactEmail,
-        phone,
+        phone: phone.trim(),
         location,
         status,
       }),
@@ -59,6 +61,9 @@ function EditOrganizationModal({
       setError('Organization name is required.')
       return
     }
+    const nextPhoneError = phoneValidationError(phone)
+    setPhoneError(nextPhoneError)
+    if (nextPhoneError) return
     setError(null)
     mutation.mutate()
   }
@@ -74,7 +79,17 @@ function EditOrganizationModal({
         </div>
         <TextField label="Organization email" type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} />
         <div className="grid grid-cols-2 gap-3">
-          <TextField label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <TextField
+            label="Phone"
+            type="tel"
+            value={phone}
+            onChange={(e) => {
+              setPhone(e.target.value)
+              setPhoneError(null)
+            }}
+            hint={PHONE_HINT}
+            error={phoneError ?? undefined}
+          />
           <TextField label="Location" value={location} onChange={(e) => setLocation(e.target.value)} />
         </div>
         <Select label="Status" value={status} onChange={(e) => setStatus(e.target.value as PlatformOrganization['status'])}>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="270" viewBox="0 0 500 270" xmlns:c2pa="http://c2pa.org/manifest">
+
+  <!-- Bar chart icon -->
+  <g id="Icon" fill="#1B2E44">
+    <rect id="Bar 1" x="22"  y="102" width="47" height="89"  rx="6"/>
+    <rect id="Bar 2" x="81"  y="65"  width="47" height="126" rx="6"/>
+    <rect id="Bar 3" x="140" y="28"  width="47" height="163" rx="6"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text id="3DP" x="242" y="180" fill="#E8AE4A"
+        font-family="Poppins, Montserrat, Arial, sans-serif" font-weight="600" font-size="118"
+        letter-spacing="2">3DP</text>
+
+  <!-- Tagline -->
+  <text id="Tagline" x="22" y="227" fill="#1B2E44"
+        font-family="Poppins, Montserrat, Arial, sans-serif" font-weight="600" font-size="23.5"
+        textLength="448" lengthAdjust="spacing">Data | Driven | Decisions | Partners</text>
+</svg>

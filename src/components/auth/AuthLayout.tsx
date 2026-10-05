@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
-import { Logo } from '@/components/auth/Logo'
+import threeDpLogo from '@/assets/images/3dp-logo.svg'
+import threeDpLogoLight from '@/assets/images/3dp-logo-light.svg'
 
 // const highlights = [
 //   {
@@ -22,25 +23,18 @@ export function AuthLayout({ children, title, subtitle, footer }: { children: Re
   <>
     <div className="flex min-h-svh bg-cream-100">
       {/* Left side - exactly 50% */}
-      <aside className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-navy-900 px-10 py-12 text-white lg:flex">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-40"
-          style={{
-            backgroundImage:
-              'radial-gradient(circle at 15% 15%, rgba(231,169,67,0.18), transparent 45%), radial-gradient(circle at 85% 85%, rgba(31,111,122,0.25), transparent 50%)',
-          }}
-          aria-hidden="true"
-        />
+      <aside className="relative hidden w-1/2 flex-col items-center justify-between overflow-hidden bg-[#f7f7f7] px-10 py-12 text-navy-900 lg:flex">
+        <div aria-hidden="true" />
 
-        <div className="relative">
-          <Logo variant="light" />
+        <div className="relative flex w-full max-w-md flex-1 flex-col items-center justify-center text-center">
+          <img src={threeDpLogo} alt="3DP Logo" className="h-auto w-full" />
 
-          <h1 className="mt-14 text-3xl font-semibold leading-tight text-white">
+          {/* <h1 className="mt-12 text-3xl font-semibold leading-tight text-white">
             Turning data into smarter decisions through training, data products, and
             digitization.
-          </h1>
+          </h1> */}
 
-          <p className="mt-4 text-sm leading-relaxed text-navy-400">
+          <p className="mt-8 text-s leading-relaxed text-navy-600">
             One platform for tracking organizations, respondents, and committed capital
             across every module.
           </p>
@@ -67,15 +61,15 @@ export function AuthLayout({ children, title, subtitle, footer }: { children: Re
           ))}
         </ul> */}
 
-        <p className="relative text-xs text-navy-500">
+        <p className="relative text-sm text-navy-500">
           © {new Date().getFullYear()} Data Driven Decisions Partners
         </p>
       </aside>
 
       {/* Right side - exactly 50% */}
-      <main className="flex w-1/2 flex-col items-center justify-center px-6 py-12 sm:px-10">
+      <main className="flex w-full flex-col bg-navy-900 lg:w-1/2 items-center justify-center px-6 py-12 sm:px-10">
         <div className="mb-8 lg:hidden">
-          <Logo />
+          <img src={threeDpLogoLight} alt="3DP Logo" className="h-20 w-auto" />
         </div>
 
         <div className="w-full max-w-sm">
@@ -96,7 +90,7 @@ export function AuthLayout({ children, title, subtitle, footer }: { children: Re
           </div>
 
           {footer && (
-            <div className="mt-6 text-center text-sm text-navy-500">
+            <div className="mt-6 text-center text-sm text-navy-300 [&_a]:text-amber-400">
               {footer}
             </div>
           )}

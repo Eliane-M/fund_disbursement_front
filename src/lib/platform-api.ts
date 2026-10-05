@@ -6,6 +6,7 @@ import type { OrganizationAdminInput, PaginatedResult, PlatformOrganization, Pla
 export interface ListParams {
   search?: string
   status?: string
+  is_platform_admin?: boolean
   page?: number
   page_size?: number
 }
@@ -58,6 +59,9 @@ export const platformApi = {
   },
   users(params: ListParams = {}) {
     return api.get<PaginatedResult<PlatformUser>>('/platform/users/', { params }).then((r) => r.data)
+  },
+  createPlatformAdmin(payload: { email: string; first_name: string; last_name: string; phone_number?: string }) {
+    return api.post<PlatformUser>('/platform/users/', payload).then((r) => r.data)
   },
   updateUser(
     userId: string,

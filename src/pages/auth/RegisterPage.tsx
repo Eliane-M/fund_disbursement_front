@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { TextField } from '@/components/ui/TextField'
 import { extractErrorMessage } from '@/lib/api'
 import { authApi } from '@/lib/auth-api'
+import { PHONE_HINT, phoneValidationError } from '@/lib/phone'
 
 export function RegisterPage() {
   const navigate = useNavigate()
@@ -15,12 +16,16 @@ export function RegisterPage() {
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
+  const [phoneError, setPhoneError] = useState<string | null>(null)
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    const nextPhoneError = phoneValidationError(phoneNumber)
+    setPhoneError(nextPhoneError)
+    if (nextPhoneError) return
     setError(null)
     setIsSubmitting(true)
     try {
@@ -29,7 +34,7 @@ export function RegisterPage() {
         password,
         first_name: firstName,
         last_name: lastName,
-        phone_number: phoneNumber,
+        phone_number: phoneNumber.trim(),
       })
       navigate('/verify-email', { state: { email } })
     } catch (err) {
@@ -84,8 +89,13 @@ export function RegisterPage() {
           type="tel"
           autoComplete="tel"
           value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
+          onChange={(e) => {
+            setPhoneNumber(e.target.value)
+            setPhoneError(null)
+          }}
           placeholder="Optional"
+          hint={PHONE_HINT}
+          error={phoneError ?? undefined}
         />
         <TextField
           label="Password"

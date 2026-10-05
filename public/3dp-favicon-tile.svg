@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <rect id="Tile" width="64" height="64" rx="14" fill="#1B2E44"/>
+  <g id="Icon" fill="#FFFFFF">
+    <rect x="13" y="34" width="10" height="18" rx="2.5"/>
+    <rect x="27" y="24" width="10" height="28" rx="2.5"/>
+    <rect x="41" y="12" width="10" height="40" rx="2.5" fill="#E8AE4A"/>
+  </g>
+</svg>
