@@ -14,6 +14,7 @@ export function RegisterPage() {
 
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
+  const [organizationName, setOrganizationName] = useState('')
   const [email, setEmail] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [phoneError, setPhoneError] = useState<string | null>(null)
@@ -34,6 +35,7 @@ export function RegisterPage() {
         password,
         first_name: firstName,
         last_name: lastName,
+        organization_name: organizationName.trim(),
         phone_number: phoneNumber.trim(),
       })
       navigate('/verify-email', { state: { email } })
@@ -75,6 +77,16 @@ export function RegisterPage() {
             onChange={(e) => setLastName(e.target.value)}
           />
         </div>
+        <TextField
+          label="Organization"
+          autoComplete="organization"
+          required
+          maxLength={255}
+          value={organizationName}
+          onChange={(e) => setOrganizationName(e.target.value)}
+          placeholder="Your organization's name"
+          hint="You'll be the admin of this organization."
+        />
         <TextField
           label="Email"
           type="email"

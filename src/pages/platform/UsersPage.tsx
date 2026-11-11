@@ -201,12 +201,13 @@ export function UsersPage() {
 
   return (
     <PlatformLayout title="System admins" subtitle="Administrators of the whole platform. Organization users are managed from each organization's page."
-      actions={
+    >
+      <Breadcrumb items={[{ label: 'Platform Console' }, { label: 'System admins' }]} />
+      <div className="mb-4 flex justify-end">
         <Button fullWidth={false} className="px-4 py-2" onClick={() => setShowAdd(true)}>
           + Add system admin
         </Button>
-      }>
-      <Breadcrumb items={[{ label: 'Platform Console' }, { label: 'System admins' }]} />
+      </div>
       <section className="rounded-2xl border border-cream-300 bg-white p-6">
         {notice && (
           <div className="mb-4">

@@ -1,0 +1,130 @@
+/*
+ * Scoped version of ./index.css (the original, untouched, from the 3DP website).
+ *
+ * The original targets :root / body / h1-h3 and overrides the Tailwind theme,
+ * which would restyle the whole console app. Here everything lives under
+ * `.landing-root`. The Tailwind colour utilities (bg-bg, text-ink, border-line,
+ * ...), `font-display` and the `xs` breakpoint are registered in src/index.css.
+ */
+
+/* ---------- Tokens (dark by default, light follows the system) ---------- */
+.landing-root {
+  --bg: #101B2D;
+  --bg-elevated: #16233F;
+  --bg-elevated-2: #1C2C4C;
+  --ink: #F4EFE3;
+  --ink-muted: #A9B3C7;
+  --ink-faint: #6F7C93;
+  --accent: #E8A93B;
+  --accent-ink: #1A1305;
+  --accent-2: #5FA39A;
+  --line: rgba(244, 239, 227, 0.14);
+  color-scheme: dark;
+
+  --font-sans: 'IBM Plex Sans', sans-serif;
+
+  min-height: 100svh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+@media (prefers-color-scheme: light) {
+  .landing-root {
+    --bg: #EEEAE0;
+    --bg-elevated: #FFFFFF;
+    --bg-elevated-2: #F7F4EC;
+    --ink: #101B2D;
+    --ink-muted: #454F63;
+    --ink-faint: #767F92;
+    --accent: #B5761D;
+    --accent-ink: #FFFDF7;
+    --accent-2: #2C6963;
+    --line: rgba(16, 27, 45, 0.13);
+    color-scheme: light;
+  }
+}
+
+html:has(.landing-root) {
+  scroll-behavior: smooth;
+}
+
+@layer base {
+  .landing-root :is(h1, h2, h3) {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .landing-root :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .landing-root .btn {
+    display: inline-flex;
+    cursor: pointer;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    padding: 13px 1.5rem;
+    font-family: var(--font-sans);
+    font-size: 0.96rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .landing-root .btn-primary {
+    background-color: var(--accent);
+    color: var(--accent-ink);
+  }
+  .landing-root .btn-primary:hover {
+    opacity: 0.92;
+  }
+  .landing-root .btn-ghost {
+    border-color: var(--line);
+    color: var(--ink);
+  }
+  .landing-root .btn-ghost:hover {
+    border-color: var(--ink-faint);
+  }
+}
+
+/* ---------- Logo: pick the variant that matches the theme ---------- */
+.landing-root .logo-for-light {
+  display: none;
+}
+@media (prefers-color-scheme: light) {
+  .landing-root .logo-for-light { display: block; }
+  .landing-root .logo-for-dark { display: none; }
+}
+
+/* ---------- Hero background + chart animation ---------- */
+.landing-root .hero-dots {
+  background-image: radial-gradient(circle at 1.5px 1.5px, var(--line) 1.5px, transparent 0);
+  background-size: 28px 28px;
+}
+.landing-root .hero-graphic .draw {
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: landing-draw 1.8s ease forwards 0.2s;
+}
+.landing-root .hero-graphic .node {
+  opacity: 0;
+  animation: landing-pop 0.4s ease forwards;
+  transform-origin: center;
+}
+@keyframes landing-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes landing-pop {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-root .hero-graphic .draw { animation: none; stroke-dashoffset: 0; }
+  .landing-root .hero-graphic .node { animation: none; opacity: 1; }
+}

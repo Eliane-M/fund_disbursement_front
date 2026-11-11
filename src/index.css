@@ -5,7 +5,8 @@
 
   /* Brand palette, sampled from the Platform Console mockups */
   --color-navy-950: #0f2a40;
-  --color-navy-900: #132f45;
+  --color-navy-900: #101b2d;
+  --secondary-color-navy: #132f45;
   --color-navy-800: #18354e;
   --color-navy-700: #224260;
   --color-navy-600: #36597b;
@@ -18,9 +19,10 @@
 
   --color-amber-600: #c7882d;
   --color-amber-500: #e7a943;
-  --color-amber-400: #f1ba5d;
+  --color-amber-400: #D79E3A;
   --color-amber-300: #fbd28c;
   --color-amber-100: #faf1de;
+  --secondary-color-amber: #F1BA5D;
 
   --color-teal-600: #1f6f7a;
 
@@ -30,6 +32,26 @@
   --color-trial-text: #8a5a20;
   --color-danger-bg: #fbe2e1;
   --color-danger-text: #b3362c;
+}
+
+/* Landing page (src/pages/landing): utilities it relies on. The token values
+   themselves are defined under .landing-root in landing.css. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-elevated: var(--bg-elevated);
+  --color-elevated-2: var(--bg-elevated-2);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-2: var(--accent-2);
+  --color-line: var(--line);
+}
+
+@theme {
+  --font-display: 'Space Grotesk', sans-serif;
+  --breakpoint-xs: 561px;
 }
 
 :root {
@@ -47,4 +69,38 @@ body {
 
 #root {
   min-height: 100svh;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-20px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(420px) rotate(540deg);
+    opacity: 0;
+  }
+}
+
+@keyframes celebrate-pop {
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media print {
+  body {
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  section,
+  .break-inside-avoid {
+    break-inside: avoid;
+  }
 }

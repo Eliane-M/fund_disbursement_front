@@ -4,6 +4,8 @@ export interface UserMembership {
   organization_name: string
   role: 'org_admin' | 'reviewer' | 'respondent'
   status: 'invited' | 'active' | 'suspended'
+  respondent: string | null
+  respondent_name: string
 }
 
 export interface User {
@@ -46,6 +48,7 @@ export interface RegisterPayload {
   password: string
   first_name: string
   last_name: string
+  organization_name: string
   phone_number?: string
 }
 

@@ -6,13 +6,23 @@ import type {
   Capability,
   Category,
   DashboardStats,
+  AnswerInput,
+  GradeResult,
   MaturityBand,
+  MyInvitation,
+  MyReport,
+  MyReportDetail,
+  MyResponse,
+  PendingResponse,
   Question,
+  Questionnaire,
   Recommendation,
   ReportDetail,
   ReportListItem,
   ReportShareStatus,
+  ReviewQueueItem,
   SubCapability,
+  SubmitResult,
 } from '@/types/assessment'
 
 export const assessmentApi = {
@@ -159,6 +169,45 @@ export const assessmentApi = {
   updateReportShareStatus(id: string, shareStatus: ReportShareStatus) {
     return api
       .patch<ReportDetail>(`/assessment/reports/${id}/`, { share_status: shareStatus })
+      .then((r) => r.data)
+  },
+
+  myAssessments() {
+    return api.get<MyInvitation[]>('/assessment/my/assessments/').then((r) => r.data)
+  },
+  myReports() {
+    return api.get<MyReport[]>('/assessment/my/reports/').then((r) => r.data)
+  },
+
+  myReport(id: string) {
+    return api.get<MyReportDetail>(`/assessment/my/reports/${id}/`).then((r) => r.data)
+  },
+
+  myAssessment(invitationId: string) {
+    return api.get<Questionnaire>(`/assessment/my/assessments/${invitationId}/`).then((r) => r.data)
+  },
+  saveMyAnswers(invitationId: string, answers: AnswerInput[]) {
+    return api
+      .put<{ responses: MyResponse[] }>(`/assessment/my/assessments/${invitationId}/answers/`, { answers })
+      .then((r) => r.data)
+  },
+  submitMyAssessment(invitationId: string) {
+    return api.post<SubmitResult>(`/assessment/my/assessments/${invitationId}/submit/`).then((r) => r.data)
+  },
+
+  submissionQueue(organizationId: string) {
+    return api
+      .get<ReviewQueueItem[]>('/assessment/review-queue/', { params: { organization: organizationId } })
+      .then((r) => r.data)
+  },
+  pendingResponses(invitationId: string) {
+    return api
+      .get<PendingResponse[]>(`/assessment/invitations/${invitationId}/pending-responses/`)
+      .then((r) => r.data)
+  },
+  gradeResponse(responseId: string, reviewerScore: string) {
+    return api
+      .post<GradeResult>(`/assessment/responses/${responseId}/score/`, { reviewer_score: reviewerScore })
       .then((r) => r.data)
   },
 }

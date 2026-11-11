@@ -1,20 +1,30 @@
 import { useQuery } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 
 import threeDpLogo from '@/assets/images/3dp-logo.svg'
 import { BellIcon } from '@/components/ui/icons'
 import { useAuth } from '@/hooks/useAuth'
 import { useOrganization } from '@/hooks/useOrganization'
 import { coreApi } from '@/lib/core-api'
+import { fundDisbursementApi } from '@/lib/fund-disbursement-api'
 
-const NAV_ITEMS = [
+const ASSESSMENT_NAV_ITEMS = [
   { to: '/assessment', label: 'Dashboard', end: true },
   { to: '/assessment/builder', label: 'Assessment Builder' },
   { to: '/assessment/respondents', label: 'Respondents' },
+  { to: '/assessment/submissions', label: 'Submissions' },
   { to: '/assessment/reports', label: 'Reports' },
   { to: '/assessment/members', label: 'Users', adminOnly: true },
-  { to: '/assessment/settings', label: 'Module Settings' },
+  // { to: '/assessment/settings', label: 'Module Settings' },
+]
+
+const DISBURSEMENT_NAV_ITEMS = [
+  { to: '/fund-disbursement', label: 'Dashboard', end: true },
+  { to: '/fund-disbursement/funds', label: 'Funds & Grants' },
+  { to: '/fund-disbursement/review-queue', label: 'Milestone Review' },
+  { to: '/fund-disbursement/recipients', label: 'Recipients' },
+  // { to: '/fund-disbursement/settings', label: 'Module Settings' },
 ]
 
 function navLinkClass(isActive: boolean) {
@@ -32,11 +42,21 @@ export function ConsoleLayout({ title, subtitle, actions, children }: {
   const { user, logout } = useAuth()
   const { activeOrganization } = useOrganization()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  const isDisbursement = location.pathname.startsWith('/fund-disbursement')
+  const navItems = isDisbursement ? DISBURSEMENT_NAV_ITEMS : ASSESSMENT_NAV_ITEMS
 
   const { data: respondents } = useQuery({
     queryKey: ['respondents', activeOrganization?.id],
     queryFn: () => coreApi.respondents(activeOrganization!.id),
     enabled: Boolean(activeOrganization),
+  })
+
+  const { data: reviewQueue } = useQuery({
+    queryKey: ['review-queue', activeOrganization?.id],
+    queryFn: () => fundDisbursementApi.reviewQueue(activeOrganization!.id),
+    enabled: Boolean(activeOrganization) && isDisbursement,
   })
 
   async function handleLogout() {
@@ -48,7 +68,7 @@ export function ConsoleLayout({ title, subtitle, actions, children }: {
 
   return (
     <div className="flex min-h-svh flex-col bg-cream-100">
-      <header className="sticky top-0 z-20 flex h-20 items-center border-b border-cream-300 bg-[#f7f7f7] pr-6 lg:pr-10">
+      <header className="sticky top-0 z-20 flex h-20 print:hidden items-center border-b border-cream-300 bg-[#f7f7f7] pr-6 lg:pr-10">
         <div className="hidden w-64 shrink-0 items-center lg:flex px-10 py-10">
           <img src={threeDpLogo} alt="3DP Logo" className="h-full w-auto" />
         </div>
@@ -81,7 +101,7 @@ export function ConsoleLayout({ title, subtitle, actions, children }: {
       </header>
 
       <div className="flex min-w-0 flex-1">
-      <aside className="sticky top-20 hidden h-[calc(100svh-5rem)] w-64 shrink-0 flex-col overflow-y-auto bg-navy-900 px-4 py-6 text-white lg:flex">
+      <aside className="sticky top-20 hidden print:!hidden h-[calc(100svh-5rem)] w-64 shrink-0 flex-col overflow-y-auto bg-navy-900 px-4 py-6 text-white lg:flex">
         <div className="mt-2 flex items-center gap-2.5 rounded-xl bg-white/5 px-3 py-2.5">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500 text-sm font-bold text-navy-900">
             {orgInitial}
@@ -97,38 +117,61 @@ export function ConsoleLayout({ title, subtitle, actions, children }: {
         </div>
 
         <div className="mt-4 flex gap-1 rounded-lg bg-white/5 p-1">
-          <span className="flex-1 rounded-md bg-amber-500 px-3 py-1.5 text-center text-xs font-semibold text-navy-900">
-            Assessment
-          </span>
-          <span
-            className="flex-1 cursor-not-allowed rounded-md px-3 py-1.5 text-center text-xs font-medium text-navy-500"
-            title="Coming soon"
+          <Link
+            to="/assessment"
+            className={`flex-1 rounded-md px-3 py-1.5 text-center text-xs font-semibold transition-colors ${
+              !isDisbursement ? 'bg-amber-500 text-navy-900' : 'text-navy-400 hover:text-white'
+            }`}
           >
-            Disbursement
-          </span>
+            Assessment
+          </Link>
+          {activeOrganization?.modules.includes('disbursement') ? (
+            <Link
+              to="/fund-disbursement"
+              className={`flex-1 rounded-md px-3 py-1.5 text-center text-xs font-semibold transition-colors ${
+                isDisbursement ? 'bg-amber-500 text-navy-900' : 'text-navy-400 hover:text-white'
+              }`}
+            >
+              Disbursement
+            </Link>
+          ) : (
+            <span
+              className="flex-1 cursor-not-allowed rounded-md px-3 py-1.5 text-center text-xs font-medium text-navy-500"
+              title="Not enabled for this organization"
+            >
+              Disbursement
+            </span>
+          )}
         </div>
 
         <p className="mb-2 mt-7 px-3 text-[11px] font-semibold uppercase tracking-wide text-navy-500">
-          Maturity Assessment
+          {isDisbursement ? 'Fund Disbursement' : 'Maturity Assessment'}
         </p>
         <nav className="flex flex-col gap-1">
-          {NAV_ITEMS.filter((item) => !item.adminOnly || activeOrganization?.role === 'org_admin').map((item) => (
-            <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => navLinkClass(isActive)}>
-              <span>{item.label}</span>
-              {item.label === 'Respondents' && respondents && (
-                <span className="rounded-full bg-white/10 px-1.5 text-xs text-navy-300">
-                  {respondents.length}
-                </span>
-              )}
-            </NavLink>
-          ))}
+          {navItems
+            .filter((item) => !('adminOnly' in item && item.adminOnly) || activeOrganization?.role === 'org_admin')
+            .map((item) => (
+              <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => navLinkClass(isActive)}>
+                <span>{item.label}</span>
+                {item.label === 'Respondents' && respondents && (
+                  <span className="rounded-full bg-white/10 px-1.5 text-xs text-navy-300">
+                    {respondents.length}
+                  </span>
+                )}
+                {item.label === 'Milestone Review' && reviewQueue && reviewQueue.length > 0 && (
+                  <span className="rounded-full bg-white/10 px-1.5 text-xs text-navy-300">
+                    {reviewQueue.length}
+                  </span>
+                )}
+              </NavLink>
+            ))}
         </nav>
 
-        <p className="mb-2 mt-7 px-3 text-[11px] font-semibold uppercase tracking-wide text-navy-500">
+        {/* <p className="mb-2 mt-7 px-3 text-[11px] font-semibold uppercase tracking-wide text-navy-500">
           Cross-module
-        </p>
+        </p> */}
         <nav className="flex flex-col gap-1">
-          <span className="rounded-lg px-3 py-2 text-sm text-navy-400">Dashboards Hub</span>
+          {/* <span className="rounded-lg px-3 py-2 text-sm text-navy-400">Dashboards Hub</span> */}
         </nav>
 
         <div className="mt-auto flex flex-col gap-1 pt-6">
@@ -151,7 +194,7 @@ export function ConsoleLayout({ title, subtitle, actions, children }: {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <main className="flex-1 px-6 py-8 lg:px-10">{children}</main>
+        <main className="flex-1 px-6 py-8 lg:px-10 print:p-0">{children}</main>
       </div>
       </div>
     </div>

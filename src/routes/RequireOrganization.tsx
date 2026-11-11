@@ -1,11 +1,13 @@
 import type { ReactNode } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 
 // Self-serve org creation is disabled — organizations are now created by a
 // platform admin. Left importable so it's a one-line revert if that changes.
 // import { useState } from 'react'
 // import { CreateOrganizationForm } from '@/routes/CreateOrganizationForm'
+import { useAuth } from '@/hooks/useAuth'
 import { useOrganization } from '@/hooks/useOrganization'
+import { hasStaffMembership } from '@/lib/memberships'
 import type { Organization } from '@/types/assessment'
 
 function CenteredCard({ title, children }: { title: string; children: ReactNode }) {
@@ -21,9 +23,15 @@ function CenteredCard({ title, children }: { title: string; children: ReactNode 
 
 export function RequireOrganization() {
   const { organizations, activeOrganization, isLoading, error, setActiveOrganization } = useOrganization()
+  const { user } = useAuth()
   // const [showCreateForm, setShowCreateForm] = useState(false)
 
   if (isLoading) return null
+
+  // Respondents have no console access — every endpoint behind here is staff-only.
+  if (user && organizations.length > 0 && !hasStaffMembership(user)) {
+    return <Navigate to="/my" replace />
+  }
 
   if (error) {
     return <CenteredCard title="Something went wrong">{error}</CenteredCard>

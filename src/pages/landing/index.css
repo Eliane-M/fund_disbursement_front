@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+/* ---------- Tokens (dark by default, light follows the system or data-theme) ---------- */
+:root {
+  --bg: #101B2D;
+  --bg-elevated: #16233F;
+  --bg-elevated-2: #1C2C4C;
+  --ink: #F4EFE3;
+  --ink-muted: #A9B3C7;
+  --ink-faint: #6F7C93;
+  --accent: #E8A93B;
+  --accent-ink: #1A1305;
+  --accent-2: #5FA39A;
+  --line: rgba(244, 239, 227, 0.14);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #EEEAE0;
+    --bg-elevated: #FFFFFF;
+    --bg-elevated-2: #F7F4EC;
+    --ink: #101B2D;
+    --ink-muted: #454F63;
+    --ink-faint: #767F92;
+    --accent: #B5761D;
+    --accent-ink: #FFFDF7;
+    --accent-2: #2C6963;
+    --line: rgba(16, 27, 45, 0.13);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #EEEAE0;
+  --bg-elevated: #FFFFFF;
+  --bg-elevated-2: #F7F4EC;
+  --ink: #101B2D;
+  --ink-muted: #454F63;
+  --ink-faint: #767F92;
+  --accent: #B5761D;
+  --accent-ink: #FFFDF7;
+  --accent-2: #2C6963;
+  --line: rgba(16, 27, 45, 0.13);
+  color-scheme: light;
+}
+
+/* ---------- Tailwind theme: expose tokens as utilities (bg-bg, text-ink, border-line, ...) ---------- */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-elevated: var(--bg-elevated);
+  --color-elevated-2: var(--bg-elevated-2);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-2: var(--accent-2);
+  --color-line: var(--line);
+}
+
+@theme {
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-sans: 'IBM Plex Sans', sans-serif;
+
+  /* Breakpoints matching the original design */
+  --breakpoint-xs: 561px;
+  --breakpoint-sm: 641px;
+  --breakpoint-md: 821px;
+  --breakpoint-lg: 901px;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  h1, h2, h3 {
+    @apply font-display font-semibold;
+    letter-spacing: -0.01em;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex cursor-pointer items-center gap-2 rounded border border-transparent px-6 py-[13px] font-sans text-[0.96rem] font-semibold no-underline;
+  }
+  .btn-primary {
+    @apply bg-accent text-accent-ink hover:opacity-[0.92];
+  }
+  .btn-ghost {
+    @apply border-line text-ink hover:border-ink-faint;
+  }
+}
+
+/* Unlayered on purpose so it wins over any host page defaults (e.g. the Claude artifact viewer). */
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Logo: pick the variant that matches the theme ---------- */
+.logo-for-light {
+  display: none;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .logo-for-light { display: block; }
+  :root:not([data-theme="dark"]) .logo-for-dark { display: none; }
+}
+:root[data-theme="light"] .logo-for-light { display: block; }
+:root[data-theme="light"] .logo-for-dark { display: none; }
+
+/* ---------- Hero background + chart animation ---------- */
+.hero-dots {
+  background-image: radial-gradient(circle at 1.5px 1.5px, var(--line) 1.5px, transparent 0);
+  background-size: 28px 28px;
+}
+.hero-graphic .draw {
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: draw 1.8s ease forwards 0.2s;
+}
+.hero-graphic .node {
+  opacity: 0;
+  animation: pop 0.4s ease forwards;
+  transform-origin: center;
+}
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-graphic .draw { animation: none; stroke-dashoffset: 0; }
+  .hero-graphic .node { animation: none; opacity: 1; }
+}

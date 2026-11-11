@@ -57,11 +57,15 @@ export function AssessmentBuilderPage() {
   }
 
   return (
-    <ConsoleLayout
-      title={assessment.name}
-      subtitle={`${assessment.category_name} · ${assessment.version_label}`}
-      actions={
-        <div className="flex items-center gap-3">
+    <ConsoleLayout title="Assessment builder">
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h2 className="text-xl font-semibold text-navy-900">{assessment.name}</h2>
+          <p className="mt-0.5 text-sm text-navy-500">
+            {assessment.category_name} · {assessment.version_label}
+          </p>
+        </div>
+        <div className="flex shrink-0 items-center gap-3">
           <Badge tone={assessmentStatusTone[assessment.status]}>{assessment.status}</Badge>
           <Button
             fullWidth={false}
@@ -73,8 +77,8 @@ export function AssessmentBuilderPage() {
             {assessment.status === 'live' ? 'Published' : 'Publish'}
           </Button>
         </div>
-      }
-    >
+      </div>
+
       {publishError && (
         <div className="mb-4">
           <Alert tone="error">{publishError}</Alert>

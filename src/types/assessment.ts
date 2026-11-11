@@ -248,9 +248,175 @@ export interface ReportDetail {
   gaps: ReportGap[]
 }
 
+export interface MyReportDetail {
+  id: string
+  organization: string
+  organization_name: string
+  respondent: string
+  respondent_name: string
+  assessment_name: string
+  category_name: string
+  overall_score: string
+  maturity_band_label: string
+  submitted_at: string | null
+  shared_at: string | null
+  generated_at: string
+  capability_scores: CapabilityScore[]
+  gaps: ReportGap[]
+}
+
 export interface DashboardStats {
   active_assessments: number
   respondents_invited: number
   avg_maturity_score: number | null
   reports_shared: number
+}
+
+// --- Respondent-facing ("my") shapes ------------------------------------
+
+export interface MyInvitationReport {
+  id: string
+  overall_score: string
+  maturity_band_label: string
+  shared_at: string | null
+}
+
+export interface MyInvitation {
+  id: string
+  organization: string
+  organization_name: string
+  assessment: string
+  assessment_name: string
+  assessment_version_label: string
+  category_name: string
+  respondent: string
+  respondent_name: string
+  status: InvitationStatus
+  due_date: string | null
+  sent_at: string | null
+  started_at: string | null
+  submitted_at: string | null
+  created_at: string
+  report: MyInvitationReport | null
+}
+
+export interface MyReport {
+  id: string
+  organization: string
+  organization_name: string
+  respondent: string
+  respondent_name: string
+  assessment_name: string
+  category_name: string
+  overall_score: string
+  maturity_band_label: string
+  submitted_at: string | null
+  shared_at: string | null
+  generated_at: string
+}
+
+// --- Filling in an assessment -------------------------------------------
+
+export interface QuestionnaireOption {
+  id: string
+  label: string
+  likert_position: number | null
+  display_order: number
+}
+
+export interface QuestionnaireQuestion {
+  id: string
+  capability: string
+  sub_capability: string | null
+  question_text: string
+  help_text: string
+  question_type: QuestionType
+  is_required: boolean
+  allow_not_applicable: boolean
+  numeric_unit: string
+  numeric_min: string | null
+  numeric_max: string | null
+  display_order: number
+  page_no: number
+  options: QuestionnaireOption[]
+}
+
+export interface MyResponse {
+  question: string
+  answer_value: unknown
+  is_not_applicable: boolean
+  selected_options: string[]
+  answered_at: string
+}
+
+export interface Questionnaire {
+  invitation: MyInvitation
+  capabilities: Capability[]
+  questions: QuestionnaireQuestion[]
+  responses: MyResponse[]
+}
+
+export interface AnswerInput {
+  question: string
+  answer_value?: unknown
+  selected_options?: string[]
+  is_not_applicable?: boolean
+}
+
+export interface SubmitResult {
+  detail: string
+  pending_review: number
+  report_generated: boolean
+  invitation: MyInvitation
+}
+
+export interface ReviewQueueItem {
+  id: string
+  organization: string
+  assessment: string
+  assessment_name: string
+  respondent: string
+  respondent_name: string
+  status: InvitationStatus
+  submitted_at: string | null
+  pending_review: number
+  free_text_count: number
+  report_id: string | null
+  overall_score: string | null
+}
+
+export interface PendingResponse {
+  id: string
+  invitation: string
+  question: string
+  question_text: string
+  is_scored: boolean
+  capability_name: string
+  respondent_name: string
+  assessment_name: string
+  answer_value: unknown
+  max_points: string
+  reviewer_score: string | null
+  reviewed_at: string | null
+  answered_at: string
+}
+
+export interface GradeResult {
+  response: PendingResponse
+  overall_score: string
+  maturity_band_label: string
+  pending_review: number
+}
+
+export interface AppNotification {
+  id: string
+  organization: string
+  template_key: string
+  subject: string
+  payload: Record<string, unknown>
+  related_entity_type: string
+  related_entity_id: string | null
+  status: string
+  read_at: string | null
+  created_at: string
 }

@@ -1,5 +1,12 @@
 import { api } from '@/lib/api'
-import type { InviteMemberResult, Membership, MembershipRole, Organization, Respondent } from '@/types/assessment'
+import type {
+  AppNotification,
+  InviteMemberResult,
+  Membership,
+  MembershipRole,
+  Organization,
+  Respondent,
+} from '@/types/assessment'
 
 export const coreApi = {
   organizations() {
@@ -39,5 +46,12 @@ export const coreApi = {
   },
   removeMembership(id: string) {
     return api.delete(`/core/memberships/${id}/`)
+  },
+
+  notifications() {
+    return api.get<AppNotification[]>('/core/notifications/').then((r) => r.data)
+  },
+  markNotificationRead(id: string) {
+    return api.post<AppNotification>(`/core/notifications/${id}/read/`).then((r) => r.data)
   },
 }
