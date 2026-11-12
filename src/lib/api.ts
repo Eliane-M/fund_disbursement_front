@@ -2,7 +2,7 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 
 import { tokenStorage } from '@/lib/token-storage'
 
-const baseURL = import.meta.env.API_BASE_URL ?? 'http://localhost:8000/api'
+const baseURL = import.meta.env.API_BASE_URL
 
 export const api = axios.create({ baseURL })
 
