@@ -38,13 +38,13 @@ export default function Header() {
             </Link>
           </li>
           <li className="border-t border-line lg:border-0">
-            <a
-              href="/register"
-              // onClick={close}
+            <Link
+              to="/register"
+              onClick={close}
               className="mx-8 my-3.5 block rounded bg-accent px-5 py-2.5 text-center text-[0.95rem] font-semibold text-accent-ink no-underline hover:opacity-[0.92] lg:m-0 lg:inline-block"
             >
               Get Started
-            </a>
+            </Link>
           </li>
         </ul>
 
